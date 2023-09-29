@@ -4,11 +4,6 @@ import User from "src/types/UserType";
 const UserList: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
 
-  useEffect(() => {
-    // Fetch users from your API and set them in the state
-    // Example: fetchUsers().then((data) => setUsers(data));
-  }, []);
-
   const handleEdit = (id: number) => {};
 
   const handleDelete = (id: number) => {};

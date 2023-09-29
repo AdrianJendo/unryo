@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import User from "src/types/UserType";
+import axios from "axios";
 
 interface UserFormProps {
   onSave: (user: User) => void;
@@ -14,7 +15,10 @@ const UserForm: React.FC<UserFormProps> = ({ onSave }) => {
     e.preventDefault();
     // onSave(user);
     // setUser({ name: "" });
+    axios.get("http://localhost:5001/api/users");
   };
+
+  useEffect(() => {}, []);
 
   return (
     <div>

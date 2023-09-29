@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,11 +21,17 @@ var users = []user{
 
 func main() {
 	router := gin.Default()
-	router.GET("/users", getUsers)
-	router.GET("/users/:id", getUserByID)
-    router.POST("/users", postUsers)
 
-	router.Run("localhost:5001")
+	// https://stackoverflow.com/questions/72155224/golang-gin-middleware-with-cors-not-working
+	router.Use(cors.Default())
+
+	g := router.Group("/api/users")
+	
+	g.GET("", getUsers)
+	g.GET(":id", getUserByID)
+	g.POST("", postUsers)
+
+	router.Run(":5001")
 }
 
 func getUsers(c *gin.Context) {
