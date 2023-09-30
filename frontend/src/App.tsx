@@ -35,10 +35,25 @@ function App() {
     });
   };
 
+  const handleUserEdit = (id: number, name: string) => {
+    axios
+      .put(`${BASE_URL}/${id}`, {
+        name,
+      })
+      .then((resp) => {
+        const newUsers: User[] = resp.data;
+        setUsers(newUsers);
+      });
+  };
+
   return (
     <div className="App">
       <UserForm onSave={handleSaveUser} />
-      <UserList users={users} handleDelete={handleDeleteUser} />
+      <UserList
+        users={users}
+        handleDelete={handleDeleteUser}
+        handleEdit={handleUserEdit}
+      />
     </div>
   );
 }

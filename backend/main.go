@@ -34,9 +34,10 @@ func main() {
 	g := router.Group("/api/users")
 	
 	g.GET("", getUsers)
-	g.GET(":id", getUserByID)
+	// g.GET(":id", getUserByID)
 	g.POST("", postUsers)
 	g.DELETE(":id", deleteUser)
+	g.PUT(":id", editUser)
 
 	router.Run(":5001")
 }
@@ -58,14 +59,33 @@ func postUsers(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, users)
 }
 
-func getUserByID(c *gin.Context) {
+// func getUserByID(c *gin.Context) {
+// 	id, err := strconv.Atoi(c.Param("id"))
+
+// 	if err == nil {
+// 		for _, a := range users {
+// 			if a.ID == id {
+// 					c.IndentedJSON(http.StatusOK, a)
+// 					return
+// 			}
+// 		}
+// 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+// 	} else {
+// 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "error parsing url param"})
+// 	}
+// }
+
+func deleteUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err == nil {
-		for _, a := range users {
+		for i, a := range users {
 			if a.ID == id {
-					c.IndentedJSON(http.StatusOK, a)
-					return
+				// Remove the element at index i from a.
+				copy(users[i:], users[i+1:]) // Shift a[i+1:] left one index.
+				users = users[:len(users)-1]     // Truncate slice.
+				c.IndentedJSON(http.StatusOK, users)
+				return
 			}
 		}
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
@@ -74,14 +94,20 @@ func getUserByID(c *gin.Context) {
 	}
 }
 
-func deleteUser(c *gin.Context) {
+func editUser(c *gin.Context) {
+	var updatedUser UserRequestBody
+
+	// Call BindJSON to bind the received JSON to
+	if err := c.BindJSON(&updatedUser); err != nil {
+			return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err == nil {
 		for i, a := range users {
 			if a.ID == id {
-				// Remove the element at index i from a.
-				copy(users[i:], users[i+1:]) // Shift a[i+1:] left one index.
-				users = users[:len(users)-1]     // Truncate slice.
+				a.Name = updatedUser.Name
+				users[i] = a
 				c.IndentedJSON(http.StatusOK, users)
 				return
 			}
