@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from "react";
 import User from "src/types/UserType";
+import "src/css/UserList.css";
 
-const UserList: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
+interface UserListProps {
+  users: User[];
+  handleDelete: (id: number) => void;
+}
 
+const UserList: React.FC<UserListProps> = ({ users, handleDelete }) => {
   const handleEdit = (id: number) => {};
 
-  const handleDelete = (id: number) => {};
-
   return (
-    <div>
+    <div className="user-list">
       <h2>User List</h2>
       <ul>
         {users.map((user) => (
           <li key={user.id}>
-            {user.name}{" "}
-            <button onClick={() => handleEdit(user.id)}>Edit</button>
-            <button onClick={() => handleDelete(user.id)}>Delete</button>
+            <div className="name-column">{user.name}</div>
+            <div className="buttons-column">
+              <button onClick={() => handleEdit(user.id)}>Edit</button>
+              <button onClick={() => handleDelete(user.id)}>Delete</button>
+            </div>
           </li>
         ))}
       </ul>

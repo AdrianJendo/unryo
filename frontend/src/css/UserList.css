@@ -1,0 +1,50 @@
+.user-list {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.user-list h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.user-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.user-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ccc;
+  margin-bottom: 0.5rem;
+  padding: 1rem;
+}
+
+/* Name column */
+.name-column {
+  flex: 1; /* Take up 50% of the row */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word; /* Allow text wrapping */
+}
+
+/* Buttons column */
+.buttons-column {
+  flex: 1; /* Take up 50% of the row */
+  text-align: right;
+}
+
+.user-list button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.user-list button:hover {
+  background-color: #0056b3;
+}

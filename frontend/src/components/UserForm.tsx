@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from "react";
-import User from "src/types/UserType";
-import axios from "axios";
 
 interface UserFormProps {
-  onSave: (user: User) => void;
+  onSave: (user: string) => void;
 }
 
 const UserForm: React.FC<UserFormProps> = ({ onSave }) => {
+  const [user, setUser] = useState("");
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // setUser({ ...user, [e.target.name]: e.target.value });
+    setUser(e.target.value);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // onSave(user);
-    // setUser({ name: "" });
-    axios.get("http://localhost:5001/api/users");
+    onSave(user);
+    setUser("");
   };
 
   useEffect(() => {}, []);
@@ -26,12 +24,7 @@ const UserForm: React.FC<UserFormProps> = ({ onSave }) => {
       <form onSubmit={handleSubmit}>
         <label>
           Name:
-          <input
-            type="text"
-            name="name"
-            value={"test"}
-            onChange={handleChange}
-          />
+          <input type="text" name="name" value={user} onChange={handleChange} />
         </label>
         {/* Add other input fields for user properties here */}
         <button type="submit">Save</button>
