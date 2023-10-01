@@ -6,8 +6,6 @@ services:
     volumes:
       - /frontend/node_modules
       - ./frontend/src:/frontend/src
-    env_file:
-      - ./.env
     environment:
       - WDS_SOCKET_PORT=0 # Fixes bug where websocket connection is fixed to default port 3000
   backend:
@@ -15,12 +13,14 @@ services:
       context: ./backend
     volumes:
       - ./backend:/backend
+    environment:
+      POSTGRES_URL: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     env_file:
       - ./.env
-    environment:
-      POSTGRES_URI: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
     depends_on:
       - postgres
+    ports:
+      - 5001:5001
   nginx:
     restart: always
     depends_on:
@@ -40,8 +40,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
 volumes:
-  postgres-data:
-    name: postgres-data
+  db:
     # driver: local # default driver is local

@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -26,17 +28,34 @@ var db *gorm.DB
 func initDB() {
 	// Define the database connection string.
 	// Replace with your actual PostgreSQL database information.
-	dsn := "host=localhost user=postgres password=postgres dbname=unryo port=5432 sslmode=disable"
+	godotenv.Load()
+	dbURL := fmt.Sprintf(os.Getenv("POSTGRES_URL"))
 
 	// Open a connection to the database using GORM.
 	var err error
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 
 	// Automatically create the "user" table if it doesn't exist.
+	tableExist := db.Migrator().HasTable(&User{})
 	db.AutoMigrate(&User{})
+
+	// Create default users if none exist
+	if !tableExist {
+		users := []*User{
+			{Name: "Michel"},
+			{Name: "Adrian"},
+			{Name: "Nicolas"},
+			{Name: "Damien"},
+		}
+		
+		result := db.Create(users) // pass a slice to insert multiple row
+		if result.Error != nil {
+			panic(result.Error)
+		}
+	}
 
 	fmt.Println("Connected to the database")
 }
