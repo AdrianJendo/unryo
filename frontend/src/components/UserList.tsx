@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import User from "src/types/UserType";
 import "src/css/UserList.css";
 
@@ -34,14 +34,14 @@ const UserList: React.FC<UserListProps> = ({
       <ul>
         {users.map((user) => (
           <li key={user.id}>
-            {user.id == editUser ? (
+            {user.id === editUser ? (
               <input
                 className="name-column"
                 type="text"
                 value={editUserValue}
                 onChange={(e) => setEditUserValue(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key == "Enter") {
+                  if (e.key === "Enter") {
                     handleEditRequest();
                   }
                 }}
@@ -50,11 +50,11 @@ const UserList: React.FC<UserListProps> = ({
               <div className="name-column">{user.name}</div>
             )}
             <div className="buttons-column">
-              {user.id == editUser && (
+              {user.id === editUser && (
                 <button onClick={() => handleEditRequest()}>Submit</button>
               )}
               <button onClick={() => toggleEdit(user)}>
-                {user.id == editUser ? "Cancel" : "Edit"}
+                {user.id === editUser ? "Cancel" : "Edit"}
               </button>
               <button onClick={() => handleDelete(user.id)}>Delete</button>
             </div>
