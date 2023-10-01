@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -17,15 +21,31 @@ type UserRequestBody struct {
 	Name  string  `json:"name"`
 }
 
-var users = []User{
-	{ID: 1, Name: "Michel"},
-	{ID: 2, Name: "Adrian"},
-	{ID: 3, Name: "Claud"},
+var db *gorm.DB
+
+func initDB() {
+	// Define the database connection string.
+	// Replace with your actual PostgreSQL database information.
+	dsn := "host=localhost user=postgres password=postgres dbname=unryo port=5432 sslmode=disable"
+
+	// Open a connection to the database using GORM.
+	var err error
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	// Automatically create the "user" table if it doesn't exist.
+	db.AutoMigrate(&User{})
+
+	fmt.Println("Connected to the database")
 }
 
-var uID = 4
-
 func main() {
+	// DB
+	initDB()
+
+	// Server
 	router := gin.Default()
 
 	// https://stackoverflow.com/questions/72155224/golang-gin-middleware-with-cors-not-working
@@ -43,6 +63,11 @@ func main() {
 }
 
 func getUsers(c *gin.Context) {
+	var users []User
+	db.Find(&users)
+	sort.SliceStable(users, func(i,j int) bool {
+		return users[i].ID < users[j].ID
+	})
 	c.IndentedJSON(http.StatusOK, users)
 }
 
@@ -54,41 +79,27 @@ func postUsers(c *gin.Context) {
 			return
 	}
 
-	users = append(users, User{Name:newUser.Name, ID:uID})
-	uID++
-	c.IndentedJSON(http.StatusCreated, users)
+	user := User{Name:newUser.Name}
+	result := db.Create(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	getUsers(c)
 }
-
-// func getUserByID(c *gin.Context) {
-// 	id, err := strconv.Atoi(c.Param("id"))
-
-// 	if err == nil {
-// 		for _, a := range users {
-// 			if a.ID == id {
-// 					c.IndentedJSON(http.StatusOK, a)
-// 					return
-// 			}
-// 		}
-// 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
-// 	} else {
-// 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "error parsing url param"})
-// 	}
-// }
 
 func deleteUser(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err == nil {
-		for i, a := range users {
-			if a.ID == id {
-				// Remove the element at index i from a.
-				copy(users[i:], users[i+1:]) // Shift a[i+1:] left one index.
-				users = users[:len(users)-1]     // Truncate slice.
-				c.IndentedJSON(http.StatusOK, users)
-				return
-			}
+		result := db.Delete(&User{}, id)
+		if result.Error != nil {
+			panic(result.Error)
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+		if result.RowsAffected > 0 {
+			getUsers(c)
+		} else {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+		}
 	} else {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "error parsing url param"})
 	}
@@ -104,15 +115,18 @@ func editUser(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err == nil {
-		for i, a := range users {
-			if a.ID == id {
-				a.Name = updatedUser.Name
-				users[i] = a
-				c.IndentedJSON(http.StatusOK, users)
-				return
-			}
+		var user User
+		db.First(&user, id)
+		user.Name = updatedUser.Name
+		result := db.Save(&user)
+		if result.Error != nil {
+			panic(result.Error)
 		}
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+		if result.RowsAffected > 0 {
+			getUsers(c)
+		} else {
+			c.IndentedJSON(http.StatusNotFound, gin.H{"message": "user not found"})
+		}
 	} else {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "error parsing url param"})
 	}
