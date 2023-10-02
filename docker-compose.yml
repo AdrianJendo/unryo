@@ -3,6 +3,7 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile.prod
     volumes:
       - /frontend/node_modules
       - ./frontend/src:/frontend/src
