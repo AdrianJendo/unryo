@@ -1,6 +1,6 @@
 ## Technologies Used
 
-To implement this REST API, we utilized the following technologies:
+To implement this REST API, I utilized the following technologies:
 
 - The web application was built using **React with TypeScript**. React was chosen for its lightweight framework, making it ideal for creating an easy-to-use user interface.
 
