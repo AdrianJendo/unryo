@@ -16,7 +16,9 @@ To run this application, follow these steps:
 
 1. Clone the GitHub repository.
 
-2. From the root directory, run the following command:
+2. Create a `.env` file and copy the contents of `.env.template` into it. Replace the env variables as needed.
+
+3. From the root directory, run the following command:
 
 ```
 docker compose up
